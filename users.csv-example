@@ -1,0 +1,88 @@
+email,User id,User name,User status
+john.doe@example.com,712020:5b10a2844c20165700ede21g,John Doe,Active
+jane.smith@example.com,712020:5b10a2844c20165700ede22h,Jane Smith,Active
+mike.johnson@example.com,,Mike Johnson,Active
+sarah.williams@example.com,,Sarah Williams,Inactive
+alex.brown@example.com,712020:8c15b3955d30276811fef33i,Alex Brown,Suspended
+tom.jones@example.com,,Tom Jones,
+lisa.white@example.com,712020:9d26c4a66e41387922gfg44j,Lisa White,active
+
+# В этом примере для команды 'suspend' будут обработаны активные пользователи + пустые статусы:
+# ✅ john.doe@example.com (Active)
+# ✅ jane.smith@example.com (Active) 
+# ✅ mike.johnson@example.com (Active)
+# ✅ tom.jones@example.com (пустой статус - считается как "нужно приостановить")
+# ✅ lisa.white@example.com (active - регистр не важен)
+# ❌ sarah.williams@example.com (Inactive - исключен)
+# ❌ alex.brown@example.com (Suspended - исключен)
+
+# Для команды 'restore' будут обработаны только явно неактивные пользователи:
+# ❌ john.doe@example.com (Active - исключен)
+# ❌ jane.smith@example.com (Active - исключен) 
+# ❌ mike.johnson@example.com (Active - исключен)
+# ❌ tom.jones@example.com (пустой статус - исключен, нельзя восстанавливать неизвестное)
+# ❌ lisa.white@example.com (active - исключен)
+# ✅ sarah.williams@example.com (Inactive)
+# ✅ alex.brown@example.com (Suspended)
+
+# Для команды с флагом --all будут обработаны ВСЕ пользователи независимо от статуса:
+# ✅ john.doe@example.com
+# ✅ jane.smith@example.com  
+# ✅ mike.johnson@example.com
+# ✅ sarah.williams@example.com
+# ✅ alex.brown@example.com
+# ✅ tom.jones@example.com
+# ✅ lisa.white@example.com
+
+# Дополнительные примеры с альтернативными названиями столбцов:
+
+# Вариант 1 - минимальный (только обязательные поля):
+# email
+# user1@example.com
+# user2@example.com
+
+# Вариант 2 - с альтернативными названиями столбцов:
+# Email,account_id,Name,Status,Department,Location
+# user1@example.com,712020:abc123,John Smith,Active,IT,Moscow
+# user2@example.com,,Jane Doe,Active,HR,SPb
+
+# ВАЖНЫЕ ЗАМЕЧАНИЯ:
+# 
+# 1. ОБЯЗАТЕЛЬНЫЕ СТОЛБЦЫ:
+#    - email (должен присутствовать обязательно)
+#
+# 2. ОПЦИОНАЛЬНЫЕ СТОЛБЦЫ (могут иметь разные названия):
+#    - User ID: 'User id', 'user_id', 'account_id', 'Account ID'
+#    - Имя: 'User name', 'user_name', 'name', 'Name'  
+#    - Статус: 'User status', 'user_status', 'status', 'Status'
+#
+# 3. ОСОБЕННОСТИ:
+#    - Порядок столбцов не важен
+#    - Можно добавлять любые дополнительные столбцы (они будут проигнорированы)
+#    - Поиск столбцов происходит по названию (регистр не важен)
+#    - Пустые значения в User ID допустимы (будет выполнен поиск по email)
+#    - Формат User ID: может быть 'cloudId:accountId' или просто 'accountId'
+#
+# 4. ФИЛЬТРАЦИЯ ПО СТАТУСУ (зависит от операции):
+#    
+#    Для команды 'suspend' (приостановка пользователей):
+#    ✅ Обрабатываются: 'Active', 'active', 'ACTIVE' + пустые статусы (активные или неопределенные)
+#    ❌ Исключаются: 'Inactive', 'Suspended', 'Disabled', 'Deactivated' (явно неактивные)
+#    
+#    Для команды 'restore' (восстановление пользователей):  
+#    ✅ Обрабатываются: 'Inactive', 'Suspended', 'Disabled', 'Deactivated' (только явно неактивные)
+#    ❌ Исключаются: 'Active', 'active', 'ACTIVE' + пустые статусы
+#
+#    Флаг --all: игнорирует статус полностью, обрабатывает ВСЕХ пользователей из CSV
+#    Если столбец статуса отсутствует: обрабатываются ВСЕ пользователи независимо от операции
+#    
+#    Логика: 
+#    - suspend применяется к активным и неопределенным пользователям
+#    - restore применяется только к явно неактивным пользователям
+#    - пустой статус = "неизвестно, возможно нужно приостановить"
+#
+# 5. ПРИМЕРЫ ВАЛИДНЫХ НАЗВАНИЙ СТОЛБЦОВ:
+#    email, Email, EMAIL - ✅ (обязательный)
+#    User id, user_id, account_id, Account ID - ✅ (опциональный)
+#    User name, user_name, name, Name - ✅ (опциональный)
+#    User status, user_status, status, Status - ✅ (опциональный)
